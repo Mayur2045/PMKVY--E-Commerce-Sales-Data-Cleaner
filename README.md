@@ -1,90 +1,49 @@
-# 🛍️ E-Commerce Sales Data Cleaner
+# E-Commerce Sales Data Cleaner
 
-This project is part of an internship assignment focused on cleaning raw e-commerce sales data using **AWS Glue** and **S3**, and saving the processed output in **Parquet format** for efficient analysis.
+This project focuses on building an *Extract, Transform, Load (ETL)* pipeline using *AWS Glue* to clean and enrich e-commerce sales data. The goal is to transform raw, inconsistent CSV files into clean, structured data stored in *Parquet format* on Amazon S3.
 
----
+ ## Project Overview
 
-## 📌 Project Overview
+Raw sales data often suffers from:
+- Duplicate transactions
+- Missing values (e.g., price, quantity)
+- Inconsistent date formats
 
-**Objective**:  
-Clean and transform raw CSV data containing sales transactions, remove inconsistencies, and enrich it by joining with product information.
+These issues affect data quality and make analysis difficult. This ETL pipeline resolves them using the following steps:
 
----
-
-## 📂 Input Data
-
-- **Raw Sales CSV**  
-  Path: `s3://ecommerce-data-bucket/raw/sales_data/`  
-  Contains missing values, duplicates, and inconsistent date formats.
-
-- **Product Reference CSV**  
-  Path: `s3://ecommerce-data-bucket/raw/product_data/`  
-  Includes product IDs, names, categories, etc.
+*Duplicate Removal*: Removes redundant order entries  
+*Missing Value Handling*: Fills nulls in essential fields (e.g., quantity, price)  
+*Date Standardization*: Converts all dates to a uniform format  
+*Data Enrichment*: Joins with a product reference table using product_id  
 
 ---
 
-## 🔧 ETL Process in AWS Glue
+## Project Files
 
-1. **Remove Duplicates**  
-   → Using `.dropDuplicates()`
+This repository includes the following files:
 
-2. **Fill Null Values**  
-   → `.fillna()` used to replace missing quantity and price fields
-
-3. **Standardize Date Format**  
-   → `to_date()` applied on `order_date` column
-
-4. **Join with Product Table**  
-   → `sales_data JOIN product_data ON product_id`
-
-5. **Save to S3 in Parquet Format**  
-   → Cleaned output: `s3://ecommerce-data-bucket/cleaned_data/`
+1. *sales_data.csv* – Raw sales transactions (input)  
+2. *product_data.csv* – Product metadata (used for joining) Includes product IDs, names, categories, etc 
+3. *glue_etl_script.py* – ETL script in PySpark to clean and process the data  
+ 
 
 ---
 
-## 📜 Technologies Used
+## Technologies Used
 
-- AWS S3
-- AWS Glue (Jobs, Crawlers)
-- PySpark
-- Parquet Format
-- IAM Roles for access management
-
----
-
-## 🧾 Sample Glue Script (ETL)
-
-```python
-sales_df = sales_df.dropDuplicates()
-sales_df = sales_df.fillna({'quantity': 0, 'price': 0})
-sales_df = sales_df.withColumn("order_date", to_date(col("order_date"), "yyyy-MM-dd"))
-joined_df = sales_df.join(product_df, on="product_id", how="left")
-```
+- *Amazon S3* – Data storage  
+- *AWS Glue* – ETL platform  
+- *PySpark* – Transformation logic  
+- *Parquet* – Optimized output format  
 
 ---
 
-## ✅ Output
+## Output
 
-- Cleaned sales data available in:  
-  `s3://ecommerce-data-bucket/cleaned_data/`
-- Format: **Parquet** (faster querying + storage optimized)
+-run-1749471647631-part-r-00000 Description: This file is the output of the ETL job after processing
+ecommerce-raw-data. It represents the cleaned and standardized customer data. Characteristics: Compared to the raw input, this file is expected to have: No duplicate rows. Fewer or no missing values in key fields (depending on the imputation strategy).Consistent formats order id ,product id and quantity. Uniform proper casing for price and total amount. Purpose: This file demonstrates the successful execution of the data cleaning pipeline and provides a ready-to-use dataset for analytics and other business applications. The timestamp in the filename is indicative of a specific Glue job run.
 
----
 
-## 📊 Optional Add-ons
 
-- Query using **Amazon Athena**
-- Visualize using **Amazon QuickSight**
 
----
 
-## 🙋‍♂️ Author
-
-**Mayur Koli**  
-Intern – AWS Data Engineering Project
-
----
-
-## 📅 Last Updated
-
-June 11, 2025
